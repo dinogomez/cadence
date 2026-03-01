@@ -29,9 +29,7 @@ function buildNameLocale(gender: string, accent: string): string {
 }
 
 export function pickVoiceId(persona: { voiceIds: string[] }): string {
-  const ids = persona.voiceIds
-  if (ids.length === 0) return ''
-  return ids[Math.floor(Math.random() * ids.length)]
+  return persona.voiceIds[0] ?? ''
 }
 
 export async function resolveVoiceMeta(): Promise<void> {

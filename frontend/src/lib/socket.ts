@@ -8,6 +8,7 @@ export function setNavigate(fn: (path: string) => void) { navigateFn = fn }
 let activeSocket: CadenceSocket | null = null
 
 const stripMd = (s: string) => s.replace(/\*\*(.+?)\*\*/g, '$1').replace(/\*(.+?)\*/g, '$1').replace(/__(.+?)__/g, '$1')
+const capitalize = (s: string) => s ? s.charAt(0).toUpperCase() + s.slice(1) : s
 
 export class CadenceSocket {
   private ws: WebSocket | null = null
@@ -31,10 +32,10 @@ export class CadenceSocket {
 
         // Add coaching flags
         if (eval_.coachingTip) {
-          store.addFlag({ turn: msg.turn, type: 'info', message: eval_.coachingTip })
+          store.addFlag({ turn: msg.turn, type: 'info', message: capitalize(eval_.coachingTip) })
         }
         eval_.flags.forEach((f: string) => {
-          store.addFlag({ turn: msg.turn, type: 'warning', message: f })
+          store.addFlag({ turn: msg.turn, type: 'warning', message: capitalize(f) })
         })
         // Success flag if all scores >= 4
         const avg = (eval_.scoreEmpathy + eval_.scoreEnglish + eval_.scoreCompliance + eval_.scoreResolution) / 4
