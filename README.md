@@ -1,10 +1,18 @@
-# Cadence
+![hero](frontend/public/cadence-linkedin.png)
 
-**AI-powered customer support training simulator for BPO agents.**
+<p align="center">
+  <h1 align="center"><b>Cadence</b></h1>
+  <p align="center">
+    AI-powered customer support training simulator for BPO agents.
+    <br />
+    <br />
+    <a href="https://cadence.dinogomez.app">Live Demo</a>
+    ·
+    <a href="https://github.com/dinogomez/cadence/issues">Issues</a>
+  </p>
+</p>
 
 Practice handling difficult customer calls with AI personas that react authentically to everything you say — escalating when you deflect, calming down when you empathize, and ending the call when the issue is resolved or they've had enough.
-
-Live: [cadence.dinogomez.app](https://cadence.dinogomez.app)
 
 ---
 
