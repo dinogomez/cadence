@@ -27,7 +27,7 @@ const TEAM = [
     github: 'https://github.com/dinogomez',
     x: 'https://x.com/dinogomez',
     linkedin: 'https://www.linkedin.com/in/paulgomez-dev/',
-    flag: '🇵🇭',
+    flag: 'ph',
   },
 ]
 
@@ -115,8 +115,8 @@ export default function About() {
           <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-6">TEAM BLUEROCK</p>
           {TEAM.map(person => (
             <div key={person.name} className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xl flex-shrink-0">
-                {person.flag}
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                <span className={`fi fi-${person.flag} text-2xl`} />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-0.5">

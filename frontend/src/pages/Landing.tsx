@@ -191,7 +191,9 @@ export default function Landing() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <span className="text-gray-600 text-xs font-medium tracking-widest uppercase ml-2">🇵🇭 dinogomez</span>
+            <span className="text-gray-600 text-xs font-medium tracking-widest uppercase ml-2 flex items-center gap-1.5">
+              <span className="fi fi-ph" /> dinogomez
+            </span>
             <div className="flex items-center gap-3">
               <a href="https://github.com/dinogomez" target="_blank" rel="noopener noreferrer"
                 className="text-gray-500 hover:text-white transition-colors cursor-pointer">
