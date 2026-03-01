@@ -19,7 +19,6 @@
     "motion": "^12.34.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-helmet-async": "^2.0.5",
     "react-router-dom": "^6.28.0",
     "tailwind-merge": "^3.5.0",
     "three": "^0.183.2",

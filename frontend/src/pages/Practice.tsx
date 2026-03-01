@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
 import clsx from 'clsx'
 import { createAvatar } from '@dicebear/core'
 import { glass } from '@dicebear/collection'
@@ -123,13 +122,10 @@ export default function Practice() {
     }
   }
 
+  useEffect(() => { document.title = 'Practice — Cadence' }, [])
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Helmet>
-        <title>Practice — Cadence</title>
-        <meta name="description" content="Choose a persona and scenario, then practice customer support calls with a reactive AI. Get scored on empathy, compliance, and resolution." />
-        <link rel="canonical" href="http://localhost:5173/practice" />
-      </Helmet>
       <main id="main-content">
       <nav className="border-b border-gray-200 bg-white sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-6 h-14 flex items-center">

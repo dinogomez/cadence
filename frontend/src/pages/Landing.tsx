@@ -1,5 +1,5 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
 import { motion } from 'motion/react'
 import { Orb } from '@/components/ui/orb'
 import { GithubLogo, ArrowRight, LinkedinLogo } from '@phosphor-icons/react'
@@ -25,14 +25,10 @@ const FEATURES = [
 ]
 
 export default function Landing() {
+  useEffect(() => { document.title = 'Cadence — AI Customer Support Training' }, [])
+
   return (
     <div className="bg-white">
-      <Helmet>
-        <title>Cadence — AI Customer Support Training</title>
-        <meta name="description" content="Practice customer support calls with AI personas. Real-time coaching, escalation simulation, and detailed scorecards." />
-        <link rel="canonical" href="http://localhost:5173/" />
-      </Helmet>
-
       {/* Skip link for keyboard/screen reader users */}
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-black focus:text-white focus:rounded-md focus:text-sm">
         Skip to main content
