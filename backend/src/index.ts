@@ -8,7 +8,9 @@ import { handleCallConnection } from './ws/callHandler.js'
 import { resolveVoiceMeta } from './services/voices.js'
 
 const app = new Hono()
-app.use('*', cors())
+app.use('*', cors({
+  origin: process.env.ALLOWED_ORIGIN ?? 'http://localhost:5173',
+}))
 app.get('/health', (c) => c.json({ ok: true }))
 app.route('/api/session', session)
 
@@ -21,5 +23,12 @@ const server = serve({ fetch: app.fetch, port: PORT }, (info) => {
 })
 
 // Attach WebSocket server to same http.Server
-const wss = new WebSocketServer({ server: server as any })
+const wss = new WebSocketServer({
+  server: server as any,
+  verifyClient: ({ origin }: { origin: string }) => {
+    if (!origin) return false
+    const allowed = process.env.ALLOWED_ORIGIN ?? 'http://localhost:5173'
+    return origin === allowed
+  },
+})
 wss.on('connection', handleCallConnection)

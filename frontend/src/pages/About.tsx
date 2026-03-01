@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { motion } from 'motion/react'
 import { ArrowLeft, ArrowRight, GithubLogo } from '@phosphor-icons/react'
 
@@ -33,6 +34,11 @@ const TEAM = [
 export default function About() {
   return (
     <div className="min-h-screen bg-white">
+      <Helmet>
+        <title>About — Cadence</title>
+        <meta name="description" content="Cadence is an AI-powered customer support training tool built for BPO agents. Practice real call scenarios with reactive AI personas." />
+        <link rel="canonical" href="http://localhost:5173/about" />
+      </Helmet>
       {/* Nav */}
       <nav className="sticky top-0 z-20 border-b border-gray-200 bg-white">
         <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
@@ -48,6 +54,7 @@ export default function About() {
         </div>
       </nav>
 
+      <main id="main-content">
       <div className="max-w-2xl mx-auto px-6 py-16">
 
         {/* Header */}
@@ -187,6 +194,7 @@ export default function About() {
         </motion.div>
 
       </div>
+      </main>
     </div>
   )
 }

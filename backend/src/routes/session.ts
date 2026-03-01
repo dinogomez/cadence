@@ -1,5 +1,8 @@
 import { Hono } from 'hono'
 import { PERSONAS, SCENARIOS } from '../data.js'
+
+const sanitize = (s: unknown, max = 500): string =>
+  String(s ?? '').replace(/[\r\n]{3,}/g, '\n\n').slice(0, max)
 import { synthesize } from '../services/tts.js'
 import { generateOpeningLine, generateCustomerName, generateCallDetails } from '../services/llm.js'
 import { pickVoiceId } from '../services/voices.js'
@@ -12,9 +15,17 @@ const session = new Hono()
 session.post('/preview', async (c) => {
   try {
     const body = await c.req.json()
-    const { scenarioId, personaId, customScenario } = body
+    const { scenarioId, personaId, customScenario: rawCustomScenario } = body
 
     const basePersona = PERSONAS.find(p => p.id === personaId)
+    const customScenario = rawCustomScenario ? {
+      ...rawCustomScenario,
+      title: sanitize(rawCustomScenario.title, 100),
+      context: sanitize(rawCustomScenario.context, 500),
+      policyFacts: (rawCustomScenario.policyFacts ?? []).map((f: unknown) => sanitize(f, 200)),
+      ...(rawCustomScenario.personaNameOverride !== undefined ? { personaNameOverride: sanitize(rawCustomScenario.personaNameOverride, 60) } : {}),
+      ...(rawCustomScenario.personaTypeOverride !== undefined ? { personaTypeOverride: sanitize(rawCustomScenario.personaTypeOverride, 60) } : {}),
+    } : undefined
     const scenario = customScenario ?? SCENARIOS.find(s => s.id === scenarioId)
 
     if (!basePersona || !scenario) {
@@ -34,9 +45,18 @@ session.post('/preview', async (c) => {
 session.post('/start', async (c) => {
   try {
     const body = await c.req.json()
-    const { scenarioId, personaId, agentName, customScenario } = body
+    const { scenarioId, personaId, agentName: rawAgentName, customScenario: rawCustomScenario } = body
 
+    const safeAgentName = (rawAgentName ?? '').slice(0, 100)
     const basePersona = PERSONAS.find(p => p.id === personaId)
+    const customScenario = rawCustomScenario ? {
+      ...rawCustomScenario,
+      title: sanitize(rawCustomScenario.title, 100),
+      context: sanitize(rawCustomScenario.context, 500),
+      policyFacts: (rawCustomScenario.policyFacts ?? []).map((f: unknown) => sanitize(f, 200)),
+      ...(rawCustomScenario.personaNameOverride !== undefined ? { personaNameOverride: sanitize(rawCustomScenario.personaNameOverride, 60) } : {}),
+      ...(rawCustomScenario.personaTypeOverride !== undefined ? { personaTypeOverride: sanitize(rawCustomScenario.personaTypeOverride, 60) } : {}),
+    } : undefined
     const scenario = customScenario ?? SCENARIOS.find(s => s.id === scenarioId)
 
     if (!basePersona || !scenario) {

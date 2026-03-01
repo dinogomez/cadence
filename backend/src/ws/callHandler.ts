@@ -3,7 +3,11 @@ import { transcribe } from '../services/stt.js'
 import { synthesize } from '../services/tts.js'
 import { generateCustomerResponse, evaluateTurn, generateFinalScorecard } from '../services/llm.js'
 import { PERSONAS, SCENARIOS } from '../data.js'
+import { pickVoiceId } from '../services/voices.js'
 import type { EscalationLevel, TurnEvaluation } from '../types.js'
+
+const sanitize = (s: unknown, max = 500): string =>
+  String(s ?? '').replace(/[\r\n]{3,}/g, '\n\n').slice(0, max)
 
 interface Turn { speaker: 'agent' | 'customer'; text: string }
 
@@ -21,13 +25,22 @@ export function handleCallConnection(ws: WebSocket) {
 
       // Handle agent-initiated end call
       if (msg.type === 'end_call') {
-        const { history, scenarioId, personaId, agentName, customScenario } = msg as {
+        const { history, scenarioId, personaId, agentName: rawAgentName, customScenario: rawCustomScenario } = msg as {
           history: Turn[]
           scenarioId: string
           personaId: string
           agentName: string
-          customScenario?: { title: string; context: string; policyFacts: string[] }
+          customScenario?: { title: string; context: string; policyFacts: string[]; personaNameOverride?: string; personaTypeOverride?: string }
         }
+        const safeAgentName = (rawAgentName ?? '').slice(0, 100)
+        const customScenario = rawCustomScenario ? {
+          ...rawCustomScenario,
+          title: sanitize(rawCustomScenario.title, 100),
+          context: sanitize(rawCustomScenario.context, 500),
+          policyFacts: (rawCustomScenario.policyFacts ?? []).map(f => sanitize(f, 200)),
+          ...(rawCustomScenario.personaNameOverride !== undefined ? { personaNameOverride: sanitize(rawCustomScenario.personaNameOverride, 60) } : {}),
+          ...(rawCustomScenario.personaTypeOverride !== undefined ? { personaTypeOverride: sanitize(rawCustomScenario.personaTypeOverride, 60) } : {}),
+        } : undefined
         const scenario = customScenario ?? SCENARIOS.find(s => s.id === scenarioId)
         if (!scenario) {
           send(ws, { type: 'error', message: 'Invalid scenario' })
@@ -43,7 +56,7 @@ export function handleCallConnection(ws: WebSocket) {
           history,
           turnEvaluations: sessionEvals,
           scenarioTitle: scenario.title,
-          agentName,
+          agentName: safeAgentName,
         })
         send(ws, { type: 'final_scorecard', scorecard })
         return
@@ -53,7 +66,7 @@ export function handleCallConnection(ws: WebSocket) {
       console.log('[ws] turn received, audioB64 length:', msg.audioB64?.length ?? 0)
 
       const {
-        audioB64, history, escalationLevel, scenarioId, personaId, agentName, voiceId, customScenario, customerName, callMode, callDetails
+        audioB64, history, escalationLevel, scenarioId, personaId, agentName: rawAgentName, customScenario: rawCustomScenario, customerName, callMode, callDetails
       } = msg as {
         audioB64: string
         history: Turn[]
@@ -61,12 +74,26 @@ export function handleCallConnection(ws: WebSocket) {
         scenarioId: string
         personaId: string
         agentName: string
-        voiceId?: string
         customScenario?: { title: string; context: string; policyFacts: string[]; personaNameOverride?: string; personaTypeOverride?: string }
         customerName?: string
         callMode?: 'customer-first' | 'agent-first'
         callDetails?: { summary: string; details: { label: string; value: string }[] } | null
       }
+
+      if (!audioB64 || audioB64.length > 2_000_000) {
+        send(ws, { type: 'error', message: 'Audio too large or missing' })
+        return
+      }
+
+      const safeAgentName = (rawAgentName ?? '').slice(0, 100)
+      const customScenario = rawCustomScenario ? {
+        ...rawCustomScenario,
+        title: sanitize(rawCustomScenario.title, 100),
+        context: sanitize(rawCustomScenario.context, 500),
+        policyFacts: (rawCustomScenario.policyFacts ?? []).map(f => sanitize(f, 200)),
+        ...(rawCustomScenario.personaNameOverride !== undefined ? { personaNameOverride: sanitize(rawCustomScenario.personaNameOverride, 60) } : {}),
+        ...(rawCustomScenario.personaTypeOverride !== undefined ? { personaTypeOverride: sanitize(rawCustomScenario.personaTypeOverride, 60) } : {}),
+      } : undefined
 
       turnCount++
       const currentTurn = turnCount
@@ -97,7 +124,7 @@ export function handleCallConnection(ws: WebSocket) {
         isAgentFirstOpening
           ? Promise.resolve(null)
           : evaluateTurn({ agentText, policyFacts: scenario.policyFacts, turnNumber: currentTurn, history }),
-        generateCustomerResponse({ persona, scenario, escalationLevel, history, agentText, agentName, customerName, callMode, callDetails }),
+        generateCustomerResponse({ persona, scenario, escalationLevel, history, agentText, agentName: safeAgentName, customerName, callMode, callDetails }),
       ])
 
       if (evaluation) {
@@ -105,8 +132,8 @@ export function handleCallConnection(ws: WebSocket) {
         send(ws, { type: 'turn_evaluation', evaluation, turn: currentTurn })
       }
 
-      // Step 3: TTS for customer response — use voiceId from session start, fall back to first in list
-      const resolvedVoiceId = voiceId ?? persona.voiceIds[0] ?? ''
+      // Step 3: TTS for customer response
+      const resolvedVoiceId = pickVoiceId(basePersona)
       const audioB64Out = await synthesize(customerResult.text, resolvedVoiceId, customerResult.newEscalation)
       send(ws, {
         type: 'customer_response',
@@ -127,13 +154,13 @@ export function handleCallConnection(ws: WebSocket) {
           history: allTurns,
           turnEvaluations: sessionEvals,
           scenarioTitle: scenario.title,
-          agentName,
+          agentName: safeAgentName,
         })
         send(ws, { type: 'final_scorecard', scorecard })
       }
     } catch (err) {
       console.error('callHandler error:', err)
-      send(ws, { type: 'error', message: String(err) })
+      send(ws, { type: 'error', message: 'An error occurred. Please try again.' })
     }
   })
 }
