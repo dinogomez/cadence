@@ -314,6 +314,20 @@ function Skeleton({ className }: { className?: string }) {
   return <div className={clsx('bg-gray-100 rounded animate-pulse', className)} />
 }
 
+function DotMatrix() {
+  return (
+    <span className="grid grid-cols-3 gap-0.5 w-fit">
+      {Array.from({ length: 9 }).map((_, i) => (
+        <span
+          key={i}
+          className="w-1 h-1 rounded-full bg-gray-400"
+          style={{ animationDelay: `${i * 80}ms`, animation: 'dotPulse 1.2s ease-in-out infinite' }}
+        />
+      ))}
+    </span>
+  )
+}
+
 function PolicyRow({ facts, loading }: { facts: string[]; loading: boolean }) {
   return (
     <div>
@@ -509,12 +523,7 @@ function Step3Content({ selectedPersona, selectedScenario, tab, customTitle, cus
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
         <div className="bg-gray-50 border-b border-gray-200 px-4 py-2.5 flex items-center justify-between">
           <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Call Briefing</span>
-          {previewLoading && (
-            <span className="text-xs text-gray-400 flex items-center gap-1.5">
-              <span className="inline-block w-3 h-3 border-2 border-gray-300 border-t-gray-500 rounded-full animate-spin" />
-              Generating scenario...
-            </span>
-          )}
+          {previewLoading && <DotMatrix />}
           {!previewLoading && preview && (
             <span className="text-xs text-gray-400">{preview.callDetails.companyName}</span>
           )}
@@ -626,7 +635,7 @@ function Step3Content({ selectedPersona, selectedScenario, tab, customTitle, cus
           onClick={handleStart}
           className="w-48 bg-blue-600 text-white text-sm font-medium px-5 py-2.5 rounded-md hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
-          {loading ? 'Starting...' : previewLoading ? 'Preparing...' : 'Start Call →'}
+          {loading || previewLoading ? <span className="flex items-center justify-center"><DotMatrix /></span> : 'Start Call →'}
         </button>
       </div>
     </div>
