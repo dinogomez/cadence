@@ -645,11 +645,15 @@ function Step3Content({ selectedPersona, selectedScenario, tab, customTitle, cus
       <div className="flex justify-between">
         <button onClick={() => setStep(2)} className="text-sm text-gray-500 hover:text-gray-700">← Back</button>
         <button
-          disabled={loading || previewLoading}
-          onClick={handleStart}
-          className="w-48 bg-blue-600 text-white text-sm font-medium px-5 py-2.5 rounded-md hover:bg-blue-700 disabled:cursor-not-allowed transition-colors"
+          onClick={loading || previewLoading ? undefined : handleStart}
+          className={clsx(
+            'w-48 text-white text-sm font-medium px-5 py-2.5 rounded-md transition-colors',
+            loading || previewLoading
+              ? 'bg-blue-400 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
+          )}
         >
-          {loading || previewLoading ? <span className="flex items-center justify-center"><DotMatrix onColor="#ffffff" offColor="rgba(255,255,255,0.3)" /></span> : 'Start Call →'}
+          {loading || previewLoading ? <span className="flex items-center justify-center"><DotMatrix onColor="#ffffff" offColor="rgba(255,255,255,0.4)" /></span> : 'Start Call →'}
         </button>
       </div>
     </div>
