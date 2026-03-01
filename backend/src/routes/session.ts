@@ -33,7 +33,7 @@ session.post('/preview', async (c) => {
     }
 
     const customerName = await generateCustomerName(basePersona)
-    const callDetails = await generateCallDetails({ customerName, scenario })
+    const callDetails = await generateCallDetails({ customerName, scenario, nameLocale: basePersona.nameLocale })
 
     return c.json({ customerName, callDetails })
   } catch (err) {
@@ -76,7 +76,7 @@ session.post('/start', async (c) => {
 
     // Reuse pre-generated data from /preview if provided, otherwise generate fresh
     const customerName: string = body.customerName ?? await generateCustomerName(basePersona)
-    const callDetails = body.callDetails ?? await generateCallDetails({ customerName, scenario })
+    const callDetails = body.callDetails ?? await generateCallDetails({ customerName, scenario, nameLocale: basePersona.nameLocale })
 
     const openingLine = callMode === 'customer-first'
       ? await generateOpeningLine({ persona, scenario, callDetails })

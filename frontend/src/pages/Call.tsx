@@ -405,11 +405,8 @@ export default function Call() {
               )}
             >
               {agentState === 'thinking' ? (
-                <div className="flex items-center gap-2">
-                  <Matrix rows={7} cols={7} frames={loader} fps={12} size={7} gap={1}
-                    palette={{ on: '#9ca3af', off: '#e5e7eb' }} ariaLabel="Processing" />
-                  <span className="text-gray-400 text-sm">Processing…</span>
-                </div>
+                <Matrix rows={7} cols={7} frames={loader} fps={12} size={7} gap={1}
+                  palette={{ on: '#9ca3af', off: '#e5e7eb' }} ariaLabel="Processing" />
               ) : isRecording ? (
                 <>
                   <span className="text-base">Release to send</span>
