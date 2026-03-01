@@ -49,8 +49,6 @@ Return ONLY the spoken line, no quotes, no labels.`,
   return rawStr.trim()
 }
 
-const NAME_BLACKLIST = ['Rafael', 'Mendoza', 'Alistair', 'Ethan', 'Cole', 'Whitmore', 'Ananya', 'Emma', 'James', 'John', 'Michael', 'Sarah', 'Chen', 'Li', 'Mohammed', 'Carlos', 'Maria']
-
 const FIRST_LETTER_POOL = 'ABCDEFGHJKLMNOPRSTW'
 
 export async function generateCustomerName(persona: Persona): Promise<string> {
@@ -69,7 +67,6 @@ The first name MUST start with the letter "${letter}".
 
 Rules:
 - The name must feel completely authentic to the locale/accent above.
-- Do NOT use any of these overused names: ${NAME_BLACKLIST.join(', ')}.
 - Return ONLY the full name, nothing else. No quotes, no labels, no punctuation after.`
     }],
     maxTokens: 20,
