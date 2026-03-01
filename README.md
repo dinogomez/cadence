@@ -6,9 +6,7 @@
     AI-powered customer support training simulator for BPO agents.
     <br />
     <br />
-    <a href="https://cadence.dinogomez.app">Live Demo</a>
-    ·
-    <a href="https://github.com/dinogomez/cadence/issues">Issues</a>
+    <a href="https://cadence.dinogomez.app">https://cadence.dinogomez.app</a>
   </p>
 </p>
 
