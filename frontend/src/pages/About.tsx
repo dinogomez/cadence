@@ -116,7 +116,7 @@ export default function About() {
           {TEAM.map(person => (
             <div key={person.name} className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                <img src="/ph.svg" alt="Philippines" className="w-10 h-10 object-cover" />
+                <img src="/ph.svg" alt="Philippines" style={{ width: '40px', height: '30px', objectFit: 'cover' }} />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-0.5">

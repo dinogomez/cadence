@@ -192,7 +192,7 @@ export default function Landing() {
             transition={{ duration: 0.5 }}
           >
             <span className="text-gray-600 text-xs font-medium tracking-widest uppercase ml-2 flex items-center gap-1.5">
-              <img src="/ph.svg" alt="Philippines" className="w-4 h-4 rounded-sm object-cover" /> dinogomez
+              <img src="/ph.svg" alt="Philippines" className="rounded-sm flex-shrink-0" style={{ width: '20px', height: '15px', objectFit: 'cover' }} /> dinogomez
             </span>
             <div className="flex items-center gap-3">
               <a href="https://dinogomez.app/" target="_blank" rel="noopener noreferrer"
