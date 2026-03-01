@@ -10,12 +10,22 @@ let activeSocket: CadenceSocket | null = null
 const stripMd = (s: string) => s.replace(/\*\*(.+?)\*\*/g, '$1').replace(/\*(.+?)\*/g, '$1').replace(/__(.+?)__/g, '$1')
 const capitalize = (s: string) => s ? s.charAt(0).toUpperCase() + s.slice(1) : s
 
+interface SocketCallbacks {
+  onOpen?: () => void
+  onError?: () => void
+  onClose?: () => void
+}
+
 export class CadenceSocket {
   private ws: WebSocket | null = null
 
-  connect(url: string): void {
+  connect(url: string, callbacks?: SocketCallbacks): void {
     activeSocket = this
     this.ws = new WebSocket(url)
+
+    this.ws.onopen = () => callbacks?.onOpen?.()
+    this.ws.onerror = () => callbacks?.onError?.()
+    this.ws.onclose = () => callbacks?.onClose?.()
 
     this.ws.onmessage = async (event) => {
       const msg = JSON.parse(event.data)
@@ -78,7 +88,6 @@ export class CadenceSocket {
       }
     }
 
-    this.ws.onerror = (e) => console.error('WebSocket error:', e)
   }
 
   sendTurn(payload: object): void {

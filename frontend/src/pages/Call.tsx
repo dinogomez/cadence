@@ -7,8 +7,8 @@ import { useStore } from '@/lib/store'
 import { AudioRecorder, playAudioFromBase64, getOutputVolume, stopAudio } from '@/lib/audio'
 import { CadenceSocket, setNavigate } from '@/lib/socket'
 import { Orb } from '@/components/ui/orb'
-import { Matrix, loader, vu } from '@/components/ui/matrix'
-import { PhoneDisconnect } from '@phosphor-icons/react'
+import { Matrix, loader } from '@/components/ui/matrix'
+import { PhoneDisconnect, Question, WarningCircle, ArrowCounterClockwise } from '@phosphor-icons/react'
 import type { EscalationLevel } from '@/types'
 
 const ORB_COLORS: Record<string, Record<EscalationLevel, [string, string]>> = {
@@ -39,6 +39,13 @@ const ESCALATION_LABEL: Record<EscalationLevel, string> = {
   very_angry: 'Very Angry',
 }
 
+const SCORE_DESCRIPTIONS: Record<string, string> = {
+  Empathy: 'Did you acknowledge the customer\'s emotion before jumping to a solution?',
+  English: 'Grammar, clarity, vocabulary, and avoiding excessive filler words.',
+  Compliance: 'Staying within policy — not promising what you can\'t deliver.',
+  Resolution: 'Moving toward solving the issue; taking ownership, not deflecting.',
+}
+
 export default function Call() {
   const { sessionId } = useParams<{ sessionId: string }>()
   const navigate = useNavigate()
@@ -47,6 +54,9 @@ export default function Call() {
   const isSpaceDown = useRef(false)
   const isRecordingRef = useRef(false)
   const transcriptRef = useRef<HTMLDivElement>(null)
+  const [wsError, setWsError] = useState(false)
+  const [wsConnected, setWsConnected] = useState(false)
+  const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
 
   const {
     selectedPersona, selectedScenario, agentName,
@@ -77,7 +87,11 @@ export default function Call() {
   useEffect(() => {
     const socket = new CadenceSocket()
     socketRef.current = socket
-    socket.connect(`${import.meta.env.VITE_WS_URL}/call/${sessionId}`)
+    socket.connect(`${import.meta.env.VITE_WS_URL}/call/${sessionId}`, {
+      onOpen: () => { setWsConnected(true); setWsError(false) },
+      onError: () => setWsError(true),
+      onClose: () => { if (!useStore.getState().scorecardLoading) setWsConnected(false) },
+    })
 
     const recorder = new AudioRecorder()
     recorderRef.current = recorder
@@ -188,6 +202,32 @@ export default function Call() {
   return (
     <div className="h-screen flex flex-col bg-white overflow-hidden">
 
+      {/* WS error banner */}
+      {wsError && (
+        <div className="flex items-center justify-between gap-3 bg-red-50 border-b border-red-200 px-5 py-2 flex-shrink-0">
+          <div className="flex items-center gap-2 text-red-700">
+            <WarningCircle size={15} weight="fill" />
+            <span className="text-xs font-medium">Connection lost. The backend may be cold-starting — please wait a moment.</span>
+          </div>
+          <button
+            onClick={() => {
+              setWsError(false)
+              const socket = new CadenceSocket()
+              socketRef.current = socket
+              socket.connect(`${import.meta.env.VITE_WS_URL}/call/${sessionId}`, {
+                onOpen: () => { setWsConnected(true); setWsError(false) },
+                onError: () => setWsError(true),
+                onClose: () => { if (!useStore.getState().scorecardLoading) setWsConnected(false) },
+              })
+            }}
+            className="flex items-center gap-1 text-xs font-medium text-red-700 hover:text-red-900 transition-colors"
+          >
+            <ArrowCounterClockwise size={13} />
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Top bar */}
       <header className="h-12 border-b border-gray-200 flex items-center justify-between px-5 flex-shrink-0">
         <div className="flex items-center gap-3">
@@ -237,7 +277,8 @@ export default function Call() {
                 stopAudio()
                 const state = useStore.getState()
                 const hasAgentTurns = state.turns.some(t => t.speaker === 'agent')
-                setScorecardLoading(hasAgentTurns)
+                if (!hasAgentTurns) return  // #4: no agent turns yet — don't navigate
+                setScorecardLoading(true)
                 socketRef.current?.sendEndCall({
                   history: state.turns,
                   scenarioId: selectedScenario?.id,
@@ -247,7 +288,13 @@ export default function Call() {
                 })
                 navigate(`/assessment/${sessionId}`)
               }}
-              className="ml-auto flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+              title={turns.some(t => t.speaker === 'agent') ? 'End the call' : 'Speak at least once before ending'}
+              className={clsx(
+                'ml-auto flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md transition-colors',
+                turns.some(t => t.speaker === 'agent')
+                  ? 'bg-red-600 text-white hover:bg-red-700'
+                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              )}
             >
               <PhoneDisconnect size={13} weight="fill" />
               End Call
@@ -286,9 +333,9 @@ export default function Call() {
           </div>
 
           {/* Mic visualizer + Record button */}
-          <div className="border-t border-gray-200 px-5 pt-3 pb-3 flex-shrink-0">
+          <div className="border-t border-gray-200 px-5 pt-3 pb-4 flex-shrink-0">
             {/* VU meter — only visible while recording */}
-            <div className={clsx('flex justify-center transition-all duration-200', isRecording ? 'opacity-100 mb-2' : 'opacity-0 h-0 overflow-hidden')}>
+            <div className={clsx('flex justify-center transition-all duration-200', isRecording ? 'opacity-100 mb-3' : 'opacity-0 h-0 overflow-hidden')}>
               <Matrix
                 rows={7}
                 cols={12}
@@ -318,28 +365,52 @@ export default function Call() {
                 setAgentState('thinking')
                 await sendCurrentTurn()
               }}
+              onTouchStart={(e) => {
+                e.preventDefault()
+                const { isSpeaking, agentState } = useStore.getState()
+                if (isSpeaking || agentState === 'thinking') return
+                isRecordingRef.current = true
+                setRecording(true)
+                setAgentState('listening')
+                recorderRef.current?.start()
+              }}
+              onTouchEnd={async (e) => {
+                e.preventDefault()
+                if (!isRecordingRef.current) return
+                isRecordingRef.current = false
+                setRecording(false)
+                setAgentState('thinking')
+                await sendCurrentTurn()
+              }}
               className={clsx(
-                'w-full py-2.5 rounded-md text-sm font-medium transition-all duration-150 flex items-center justify-center gap-2',
+                'w-full py-4 rounded-xl text-sm font-semibold transition-all duration-150 flex flex-col items-center justify-center gap-1 select-none touch-none',
                 isRecording
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-blue-600 text-white scale-[0.98] shadow-inner'
                   : agentState === 'thinking'
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98] shadow-md'
               )}
             >
               {agentState === 'thinking' ? (
-                <>
+                <div className="flex items-center gap-2">
                   <Matrix rows={7} cols={7} frames={loader} fps={12} size={7} gap={1}
                     palette={{ on: '#9ca3af', off: '#e5e7eb' }} ariaLabel="Processing" />
-                </>
+                  <span className="text-gray-400 text-sm">Processing…</span>
+                </div>
               ) : isRecording ? (
-                'Release to send'
+                <>
+                  <span className="text-base">Release to send</span>
+                  <span className="text-blue-200 text-xs">Recording…</span>
+                </>
               ) : (
                 <>
-                  <span>{callMode === 'agent-first' && turns.length === 0 ? 'Introduce yourself' : 'Hold to speak'}</span>
-                  <kbd className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono bg-blue-500 text-white border border-blue-400 leading-none">
-                    Space
-                  </kbd>
+                  <span className="text-base">{callMode === 'agent-first' && turns.length === 0 ? 'Hold to introduce yourself' : 'Hold to speak'}</span>
+                  <span className="text-blue-200 text-xs flex items-center gap-1">
+                    <kbd className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono bg-blue-500 text-white border border-blue-400 leading-none">
+                      Space
+                    </kbd>
+                    <span>on desktop · tap &amp; hold on mobile</span>
+                  </span>
                 </>
               )}
             </button>
@@ -412,15 +483,32 @@ export default function Call() {
               { label: 'Compliance',  value: latestEval?.scoreCompliance ?? 0 },
               { label: 'Resolution',  value: latestEval?.scoreResolution ?? 0 },
             ].map(({ label, value }) => (
-              <div key={label} className="flex items-center gap-3 mb-2">
-                <span className="text-xs text-gray-500 w-20">{label}</span>
-                <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-blue-600 rounded-full transition-all duration-500"
-                    style={{ width: `${(value / 5) * 100}%` }} />
+              <div key={label} className="mb-2">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1 w-20">
+                    <span className="text-xs text-gray-500">{label}</span>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTooltip(activeTooltip === label ? null : label)}
+                      className="text-gray-300 hover:text-gray-500 transition-colors flex-shrink-0"
+                      aria-label={`What is ${label} scored on?`}
+                    >
+                      <Question size={11} weight="bold" />
+                    </button>
+                  </div>
+                  <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-600 rounded-full transition-all duration-500"
+                      style={{ width: `${(value / 5) * 100}%` }} />
+                  </div>
+                  <span className="text-xs text-gray-400 w-5 text-right tabular-nums">
+                    {value > 0 ? value.toFixed(1) : '—'}
+                  </span>
                 </div>
-                <span className="text-xs text-gray-400 w-5 text-right tabular-nums">
-                  {value > 0 ? value.toFixed(1) : '—'}
-                </span>
+                {activeTooltip === label && (
+                  <p className="text-[11px] text-gray-500 leading-relaxed mt-1 pl-0 pr-6">
+                    {SCORE_DESCRIPTIONS[label]}
+                  </p>
+                )}
               </div>
             ))}
           </div>
