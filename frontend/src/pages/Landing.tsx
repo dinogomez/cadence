@@ -193,7 +193,7 @@ export default function Landing() {
           >
             <span className="text-gray-600 text-xs font-medium tracking-widest uppercase ml-2 flex items-center gap-1.5">
               <span className="rounded-sm overflow-hidden flex-shrink-0 inline-block" style={{ width: '20px', height: '14px' }}>
-                <img src="/ph.svg" alt="Philippines" style={{ width: '20px', height: '14px', display: 'block' }} />
+                <img src="/ph.svg" alt="Philippines" className="w-4 h-4 flex-shrink-0" />
               </span> dinogomez
             </span>
             <div className="flex items-center gap-3">

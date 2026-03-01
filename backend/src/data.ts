@@ -3,6 +3,7 @@ import 'dotenv/config'
 export interface Persona {
   id: string; name: string; age: number; type: string; description: string
   traits: string[]; avatar: string; voiceIds: string[]; voiceGender: 'male' | 'female'; nameLocale: string
+  voiceAccent?: string  // set from ElevenLabs metadata (e.g. 'french', 'american')
   speechStyle: string   // how this person actually talks — disfluencies, vocabulary, cadence, verbal habits
   voiceTags: { default: string; escalated: string; calm: string }
 }

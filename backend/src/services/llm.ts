@@ -56,7 +56,9 @@ export async function generateCustomerName(persona: Persona): Promise<string> {
     messages: [{
       role: 'user',
       content: `Generate a realistic full name for a customer. Random seed: ${seed}
-Name locale/origin: ${persona.nameLocale}
+${persona.voiceAccent
+  ? `The voice speaking this customer has a ${persona.voiceAccent} accent. Generate a name that is culturally authentic to that accent/region.`
+  : `Name locale/origin: ${persona.nameLocale}`}
 Voice gender: ${persona.voiceGender} — the name MUST be a ${persona.voiceGender} name, no exceptions.
 
 Rules:

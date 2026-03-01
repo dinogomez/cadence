@@ -115,12 +115,12 @@ export default function About() {
           <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-6">TEAM BLUEROCK</p>
           {TEAM.map(person => (
             <div key={person.name} className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                <img src="/ph.svg" alt="Philippines" style={{ width: '40px', height: '30px', objectFit: 'cover' }} />
-              </div>
+
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="text-sm font-semibold text-gray-900">{person.name}</span>
+                  <img src="/ph.svg" alt="Philippines" className="w-4 h-4 flex-shrink-0" />
+
                   {person.role && <span className="text-xs text-gray-400">{person.role}</span>}
                 </div>
                 <p className="text-sm text-gray-500 leading-relaxed mb-2">{person.bio}</p>
@@ -164,12 +164,11 @@ export default function About() {
           <p className="text-xs font-semibold tracking-widest uppercase text-gray-400 mb-4">Built with</p>
           <div className="flex flex-wrap gap-2">
             {[
-              { label: 'Mistral Large', href: 'https://mistral.ai' },
+              { label: 'Mistral', href: 'https://mistral.ai' },
               { label: 'Voxtral', href: 'https://mistral.ai/news/voxtral' },
               { label: 'ElevenLabs', href: 'https://elevenlabs.io' },
               { label: 'React 19', href: 'https://react.dev' },
               { label: 'Hono', href: 'https://hono.dev' },
-              { label: 'Mistral Hackathon 2026', href: 'https://worldwide-hackathon.mistral.ai/' },
             ].map(({ label, href }) => (
               <a key={label} href={href} target="_blank" rel="noopener noreferrer"
                 className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full hover:bg-gray-200 transition-colors">

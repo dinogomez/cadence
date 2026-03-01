@@ -73,7 +73,10 @@ export async function resolveVoiceMeta(): Promise<void> {
       // Use first valid voice to determine gender/locale
       const { gender, accent } = valid[0]
       if (gender === 'female' || gender === 'male') persona.voiceGender = gender
-      if (accent) persona.nameLocale = buildNameLocale(persona.voiceGender, accent)
+      if (accent) {
+        persona.voiceAccent = accent  // store raw accent for name generation
+        persona.nameLocale = buildNameLocale(persona.voiceGender, accent)
+      }
 
       console.log(`[voices] ${persona.id}: gender=${persona.voiceGender} accent=${accent} (${valid.length}/${results.length} valid)`)
     })

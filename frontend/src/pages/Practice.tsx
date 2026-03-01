@@ -604,7 +604,7 @@ function Step3Content({ selectedPersona, selectedScenario, tab, customTitle, cus
           <div className="px-4 py-3 border-t border-gray-100">
             <span className="text-xs font-medium text-gray-400 uppercase tracking-wide block mb-2">Policy</span>
             <PolicyRow
-              facts={preview?.callDetails.policyFacts ?? policyFacts}
+              facts={policyFacts.length > 0 ? policyFacts : (preview?.callDetails.policyFacts ?? [])}
               loading={previewLoading}
             />
           </div>

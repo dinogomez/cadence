@@ -410,17 +410,14 @@ export default function Call() {
               ) : isRecording ? (
                 <>
                   <span className="text-base">Release to send</span>
-                  <span className="text-blue-200 text-xs">Recording…</span>
                 </>
               ) : (
                 <>
-                  <span className="text-base">{callMode === 'agent-first' && turns.length === 0 ? 'Hold to introduce yourself' : 'Hold to speak'}</span>
-                  <span className="text-blue-200 text-xs flex items-center gap-1">
-                    <kbd className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono bg-blue-500 text-white border border-blue-400 leading-none">
+                  <span className="text-base">{callMode === 'agent-first' && turns.length === 0 ? <span className="text-blue-200 text-xs flex items-center gap-1">Hold to <kbd className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono bg-blue-500 text-white border border-blue-400 leading-none">
                       Space
-                    </kbd>
-                    <span>on desktop · tap &amp; hold on mobile</span>
-                  </span>
+                    </kbd> to introduce yourself</span> : <span className="text-blue-200 text-xs flex items-center gap-1">Hold to <kbd className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono bg-blue-500 text-white border border-blue-400 leading-none">
+                      Space
+                    </kbd> to speak</span>}</span>
                 </>
               )}
             </button>
@@ -448,19 +445,24 @@ export default function Call() {
                   </div>
                 ))}
               </div>
-              {callDetails.policyFacts?.length > 0 && (
-                <div className="border-t border-gray-100 pt-3">
-                  <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Policy</p>
-                  <div className="space-y-1">
-                    {callDetails.policyFacts.map((fact, i) => (
-                      <p key={i} className="text-xs text-gray-600 flex gap-1.5">
-                        <span className="text-gray-300 flex-shrink-0">—</span>
-                        {fact}
-                      </p>
-                    ))}
+              {(() => {
+                const facts = selectedScenario?.policyFacts?.length
+                  ? selectedScenario.policyFacts
+                  : callDetails?.policyFacts ?? []
+                return facts.length > 0 ? (
+                  <div className="border-t border-gray-100 pt-3">
+                    <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Policy</p>
+                    <div className="space-y-1">
+                      {facts.map((fact, i) => (
+                        <p key={i} className="text-xs text-gray-600 flex gap-1.5">
+                          <span className="text-gray-300 flex-shrink-0">—</span>
+                          {fact}
+                        </p>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                ) : null
+              })()}
             </div>
           )}
 
