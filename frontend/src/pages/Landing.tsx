@@ -218,7 +218,7 @@ export default function Landing() {
 
           {/* BLUEROCK */}
           <motion.p
-            className="font-bold select-none whitespace-nowrap leading-none"
+            className="font-bold select-none whitespace-nowrap leading-none pointer-events-none"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
