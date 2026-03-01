@@ -49,22 +49,27 @@ Return ONLY the spoken line, no quotes, no labels.`,
   return rawStr.trim()
 }
 
+const NAME_BLACKLIST = ['Rafael', 'Mendoza', 'Alistair', 'Ethan', 'Cole', 'Whitmore', 'Ananya', 'Emma', 'James', 'John', 'Michael', 'Sarah', 'Chen', 'Li', 'Mohammed', 'Carlos', 'Maria']
+
+const FIRST_LETTER_POOL = 'ABCDEFGHJKLMNOPRSTW'
+
 export async function generateCustomerName(persona: Persona): Promise<string> {
-  const seed = `${Date.now()}-${Math.floor(Math.random() * 999983)}`
+  const letter = FIRST_LETTER_POOL[Math.floor(Math.random() * FIRST_LETTER_POOL.length)]
   const response = await client.chat.complete({
     model: 'mistral-large-latest',
+    temperature: 1.2,
     messages: [{
       role: 'user',
-      content: `Generate a realistic full name for a customer. Random seed: ${seed}
+      content: `Generate a realistic full name for a customer.
 ${persona.voiceAccent
   ? `The customer's voice has a ${persona.voiceAccent} accent. The name MUST be culturally authentic to ${persona.voiceAccent} culture/region. DO NOT generate an Anglo-Saxon, English, or American name.`
   : `Name locale/origin: ${persona.nameLocale}`}
 Voice gender: ${persona.voiceGender} — the name MUST be a ${persona.voiceGender} name, no exceptions.
+The first name MUST start with the letter "${letter}".
 
 Rules:
-- The name must feel completely authentic to the locale/accent above — not Anglo-Saxon unless the accent is American, British, or Australian.
-- Vary widely — do not default to common or overused names.
-- Do NOT use: Ethan, Cole, Whitmore, Ananya, Emma, James, John, Michael, Sarah, or any name that does not match the accent/locale.
+- The name must feel completely authentic to the locale/accent above.
+- Do NOT use any of these overused names: ${NAME_BLACKLIST.join(', ')}.
 - Return ONLY the full name, nothing else. No quotes, no labels, no punctuation after.`
     }],
     maxTokens: 20,
