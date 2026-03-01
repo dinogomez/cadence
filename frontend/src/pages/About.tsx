@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
-import { ArrowLeft, ArrowRight, GithubLogo } from '@phosphor-icons/react'
+import { ArrowLeft, ArrowRight, GithubLogo, Globe } from '@phosphor-icons/react'
 
 function XIcon() {
   return (
@@ -24,10 +24,10 @@ const TEAM = [
     name: 'Dino Gomez',
     role: '',
     bio: 'Building and breaking things responsibly from the Philippines.',
+    website: 'https://dinogomez.app/',
     github: 'https://github.com/dinogomez',
     x: 'https://x.com/dinogomez',
     linkedin: 'https://www.linkedin.com/in/paulgomez-dev/',
-    flag: 'ph',
   },
 ]
 
@@ -116,7 +116,7 @@ export default function About() {
           {TEAM.map(person => (
             <div key={person.name} className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                <span className={`fi fi-${person.flag} text-2xl`} />
+                <img src="/ph.svg" alt="Philippines" className="w-10 h-10 object-cover" />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-0.5">
@@ -125,6 +125,10 @@ export default function About() {
                 </div>
                 <p className="text-sm text-gray-500 leading-relaxed mb-2">{person.bio}</p>
                 <div className="flex items-center gap-3">
+                  <a href={person.website} target="_blank" rel="noopener noreferrer"
+                    className="text-gray-400 hover:text-gray-900 transition-colors">
+                    <Globe size={15} />
+                  </a>
                   <a href={person.github} target="_blank" rel="noopener noreferrer"
                     className="text-gray-400 hover:text-gray-900 transition-colors">
                     <GithubLogo size={15} />

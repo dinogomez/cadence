@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { Orb } from '@/components/ui/orb'
-import { GithubLogo, ArrowRight, LinkedinLogo } from '@phosphor-icons/react'
+import { GithubLogo, ArrowRight, LinkedinLogo, Globe } from '@phosphor-icons/react'
 
 const ARC_ORBS: { colors: [string, string]; agentState: 'talking' | 'thinking' | 'listening'; seed: number; offset: { x: number; y: number }; size: number; z: number }[] = [
   { colors: ['#818CF8', '#4F46E5'], agentState: 'talking',   seed: 1, offset: { x: -110, y: 20 }, size: 120, z: 1 },
@@ -192,9 +192,13 @@ export default function Landing() {
             transition={{ duration: 0.5 }}
           >
             <span className="text-gray-600 text-xs font-medium tracking-widest uppercase ml-2 flex items-center gap-1.5">
-              <span className="fi fi-ph" /> dinogomez
+              <img src="/ph.svg" alt="Philippines" className="w-4 h-4 rounded-sm object-cover" /> dinogomez
             </span>
             <div className="flex items-center gap-3">
+              <a href="https://dinogomez.app/" target="_blank" rel="noopener noreferrer"
+                className="text-gray-500 hover:text-white transition-colors cursor-pointer">
+                <Globe size={16} />
+              </a>
               <a href="https://github.com/dinogomez" target="_blank" rel="noopener noreferrer"
                 className="text-gray-500 hover:text-white transition-colors cursor-pointer">
                 <GithubLogo size={16} />
