@@ -80,7 +80,7 @@ export async function generateCallDetails(params: {
   const { customerName, scenario, nameLocale } = params
   const seed = Math.floor(Math.random() * 999983)
   const response = await client.chat.complete({
-    model: 'ministral-8b-latest',
+    model: 'mistral-large-latest',
     messages: [{
       role: 'user',
       content: `You are generating a realistic call scenario briefing for a BPO agent training simulation.
