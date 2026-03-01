@@ -24,6 +24,7 @@ interface AppState {
 
   scorecard: FinalScorecard | null
   scorecardLoading: boolean
+  callEnding: 'resolved' | 'unresolved' | null
   lastPreviewKey: string
 
   setPersona: (p: Persona | null) => void
@@ -46,6 +47,7 @@ interface AppState {
   setSpeaking: (v: boolean) => void
   setScorecard: (s: FinalScorecard) => void
   setScorecardLoading: (v: boolean) => void
+  setCallEnding: (v: 'resolved' | 'unresolved' | null) => void
   setLastPreviewKey: (k: string) => void
   reset: () => void
 }
@@ -55,7 +57,7 @@ const initialState = {
   customScenario: null, sessionId: null, voiceId: null, openingAudioB64: null, openingLine: null, callMode: 'customer-first' as const, customerName: null, callDetails: null,
   escalationLevel: 'calm' as EscalationLevel, agentState: null as AgentState,
   turns: [], liveFlags: [], turnEvaluations: [],
-  isRecording: false, isSpeaking: false, scorecard: null, scorecardLoading: false, lastPreviewKey: '',
+  isRecording: false, isSpeaking: false, scorecard: null, scorecardLoading: false, callEnding: null, lastPreviewKey: '',
 }
 
 export const useStore = create<AppState>((set) => ({
@@ -80,6 +82,7 @@ export const useStore = create<AppState>((set) => ({
   setSpeaking: (v) => set({ isSpeaking: v }),
   setScorecard: (s) => set({ scorecard: s }),
   setScorecardLoading: (v) => set({ scorecardLoading: v }),
+  setCallEnding: (v) => set({ callEnding: v }),
   setLastPreviewKey: (k) => set({ lastPreviewKey: k }),
   reset: () => set({ ...initialState }),
 }))

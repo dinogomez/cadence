@@ -143,7 +143,7 @@ export async function generateCustomerResponse(params: {
   customerName?: string
   callMode?: 'customer-first' | 'agent-first'
   callDetails?: { summary: string; details: { label: string; value: string }[] } | null
-}): Promise<{ text: string; newEscalation: EscalationLevel; isEnd: boolean }> {
+}): Promise<{ text: string; newEscalation: EscalationLevel; isEnd: boolean; endCondition: 'none' | 'resolved' | 'unresolved' }> {
   const { persona, scenario, escalationLevel, history, agentText, agentName, customerName, callMode, callDetails } = params
 
   const personaDisplayName = customerName || persona.name
@@ -167,11 +167,12 @@ ${persona.speechStyle}
 What makes you MORE upset: ${persona.traits.join(', ')}, being deflected, robotic scripted responses, being put on hold, wrong information.
 What makes you LESS upset and more willing to resolve: agent uses your name or their own name, genuine empathy ("I understand how frustrating that must be"), agent takes clear ownership ("I will personally make sure this is sorted"), concrete offer (credit, exception, immediate fix), agent admits a mistake honestly.
 
-RESOLUTION RULES (critical):
-- If the agent acknowledges the problem AND offers a real, specific solution → set END_CONDITION: resolved, drop to calm
-- If the agent escalates to a supervisor or transfers to L2 with a clear handoff → set END_CONDITION: resolved
-- If the agent says they "can't help" or keeps deflecting after 4+ turns → set END_CONDITION: unresolved
-- Otherwise keep END_CONDITION: none and adjust escalation based on conversation quality
+RESOLUTION RULES (critical — you must decide every turn):
+- If the agent offers a real, specific solution and you feel satisfied → say a natural closing line ("Great, thanks so much", "Alright, I'll wait for that", etc.) then set END_CONDITION: resolved, ESCALATION_LEVEL: calm
+- If the agent escalates to a supervisor or transfers to L2 with a clear handoff → say a brief acknowledgement then set END_CONDITION: resolved
+- If you are very_angry and the agent is still deflecting or unhelpful after 3+ frustrated turns → say you're hanging up ("Forget it, I'm done", "I'll take this elsewhere") then set END_CONDITION: unresolved
+- If the agent says they cannot help and offers no alternative → say a final line then set END_CONDITION: unresolved
+- If the conversation is still in progress and not clearly resolved or abandoned → set END_CONDITION: none
 
 Rules:
 - Stay in character. Never acknowledge you are an AI.
@@ -214,7 +215,7 @@ Rules:
     .replace(/END_CONDITION:.*$/m, '')
     .trim()
 
-  return { text, newEscalation, isEnd: endCondition !== 'none' }
+  return { text, newEscalation, isEnd: endCondition !== 'none', endCondition: endCondition as 'none' | 'resolved' | 'unresolved' }
 }
 
 export async function evaluateTurn(params: {

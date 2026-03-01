@@ -64,7 +64,7 @@ export default function Call() {
     turns, liveFlags, turnEvaluations, addTurn,
     isRecording, setRecording, isSpeaking,
     customScenario, customerName, callDetails,
-    setScorecardLoading,
+    setScorecardLoading, callEnding,
   } = useStore()
 
   const avatarUrl = useMemo(() => {
@@ -272,33 +272,46 @@ export default function Call() {
                 ))}
               </div>
             )}
-            <button
-              onClick={() => {
-                stopAudio()
-                const state = useStore.getState()
-                const hasAgentTurns = state.turns.some(t => t.speaker === 'agent')
-                if (!hasAgentTurns) return  // #4: no agent turns yet — don't navigate
-                setScorecardLoading(true)
-                socketRef.current?.sendEndCall({
-                  history: state.turns,
-                  scenarioId: selectedScenario?.id,
-                  personaId: selectedPersona?.id,
-                  agentName,
-                  customScenario: customScenario ?? undefined,
-                })
-                navigate(`/assessment/${sessionId}`)
-              }}
-              title={turns.some(t => t.speaker === 'agent') ? 'End the call' : 'Speak at least once before ending'}
-              className={clsx(
-                'ml-auto flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md transition-colors',
-                turns.some(t => t.speaker === 'agent')
-                  ? 'bg-red-600 text-white hover:bg-red-700'
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              )}
-            >
-              <PhoneDisconnect size={13} weight="fill" />
-              End Call
-            </button>
+            {callEnding ? (
+              <div className={clsx(
+                'ml-auto flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md',
+                callEnding === 'resolved'
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-orange-100 text-orange-700'
+              )}>
+                <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0"
+                  style={{ background: callEnding === 'resolved' ? '#16a34a' : '#ea580c' }} />
+                {callEnding === 'resolved' ? 'Call resolved — wrapping up…' : 'Customer hung up — wrapping up…'}
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  stopAudio()
+                  const state = useStore.getState()
+                  const hasAgentTurns = state.turns.some(t => t.speaker === 'agent')
+                  if (!hasAgentTurns) return
+                  setScorecardLoading(true)
+                  socketRef.current?.sendEndCall({
+                    history: state.turns,
+                    scenarioId: selectedScenario?.id,
+                    personaId: selectedPersona?.id,
+                    agentName,
+                    customScenario: customScenario ?? undefined,
+                  })
+                  navigate(`/assessment/${sessionId}`)
+                }}
+                title={turns.some(t => t.speaker === 'agent') ? 'End the call' : 'Speak at least once before ending'}
+                className={clsx(
+                  'ml-auto flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md transition-colors',
+                  turns.some(t => t.speaker === 'agent')
+                    ? 'bg-red-600 text-white hover:bg-red-700'
+                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                )}
+              >
+                <PhoneDisconnect size={13} weight="fill" />
+                End Call
+              </button>
+            )}
           </div>
 
           {/* Orb */}

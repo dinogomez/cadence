@@ -59,13 +59,16 @@ export class CadenceSocket {
         store.setEscalation(msg.escalation)
         store.setAgentState('talking')
         store.setSpeaking(true)
+        if (msg.isEnd) {
+          // Signal ending before audio plays so UI updates immediately
+          store.setCallEnding(msg.endCondition ?? 'resolved')
+        }
 
         await playAudioFromBase64(msg.audioB64)
 
         store.setSpeaking(false)
         store.setAgentState(null)
         if (msg.isEnd) {
-          // Customer naturally ended the call — navigate immediately, scorecard loading
           store.setScorecardLoading(true)
           const sessionId = store.sessionId
           if (navigateFn && sessionId) navigateFn(`/assessment/${sessionId}`)

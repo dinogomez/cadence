@@ -141,6 +141,7 @@ export function handleCallConnection(ws: WebSocket) {
         audioB64: audioB64Out,
         escalation: customerResult.newEscalation,
         isEnd: customerResult.isEnd,
+        endCondition: customerResult.endCondition,
       })
 
       // Step 4: Final scorecard if call ended
