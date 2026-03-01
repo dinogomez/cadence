@@ -24,6 +24,7 @@ export default function Practice() {
     selectedScenario, setScenario,
     setCustomScenario,
     setSessionId, setVoiceId, setOpeningAudio, setOpeningLine, setCallMode, setCustomerName, setCallDetails,
+    lastPreviewKey, setLastPreviewKey,
   } = useStore()
 
   const [step, setStep] = useState(1)
@@ -36,8 +37,6 @@ export default function Practice() {
   const [loading, setLoading] = useState(false)
   const [preview, setPreview] = useState<Preview>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
-  // Track what we last fetched a preview for so changing persona/scenario re-fetches
-  const lastPreviewKey = useRef<string>('')
 
   const steps = ['Select Persona', 'Build Scenario', 'Confirm & Start']
 
@@ -46,8 +45,8 @@ export default function Practice() {
     if (step !== 3 || !selectedPersona) return
     const scenarioKey = tab === 'custom' ? `custom:${customTitle}` : (selectedScenario?.id ?? '')
     const key = `${selectedPersona.id}:${scenarioKey}`
-    if (key === lastPreviewKey.current) return  // already fetched for this exact selection
-    lastPreviewKey.current = key
+    if (key === lastPreviewKey) return  // already fetched for this exact selection
+    setLastPreviewKey(key)
     setPreview(null)
     setPreviewLoading(true)
     const body: Record<string, unknown> = { personaId: selectedPersona.id }
@@ -107,6 +106,7 @@ export default function Practice() {
         body: JSON.stringify(body),
       })
       const data = await res.json()
+      setLastPreviewKey('')
       setSessionId(data.sessionId)
       setVoiceId(data.voiceId ?? null)
       setOpeningAudio(data.openingAudioB64 ?? null)
@@ -300,8 +300,8 @@ export default function Practice() {
             loading={loading}
             handleStart={handleStart}
             setStep={setStep}
-            onPersonaChange={(p) => { setPersona(p); lastPreviewKey.current = ''; setPreview(null) }}
-            onScenarioChange={(s) => { setScenario(s); lastPreviewKey.current = ''; setPreview(null) }}
+            onPersonaChange={(p) => { setPersona(p); setLastPreviewKey(''); setPreview(null) }}
+            onScenarioChange={(s) => { setScenario(s); setLastPreviewKey(''); setPreview(null) }}
           />
         )}
       </div>

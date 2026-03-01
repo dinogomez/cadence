@@ -77,11 +77,13 @@ export async function generateCallDetails(params: {
   scenario: Scenario | { title: string; context: string; policyFacts: string[] }
 }): Promise<CallDetails> {
   const { customerName, scenario } = params
+  const seed = Math.floor(Math.random() * 999983)
   const response = await client.chat.complete({
     model: 'ministral-8b-latest',
     messages: [{
       role: 'user',
       content: `You are generating a realistic call scenario briefing for a BPO agent training simulation.
+Variation seed: ${seed} — use this to ensure variety across generations.
 
 Customer name: ${customerName}
 Scenario: ${'title' in scenario ? scenario.title : 'Custom'}
@@ -90,7 +92,7 @@ Policy facts: ${scenario.policyFacts.join(' | ')}
 
 Generate:
 1. A one-sentence agent-facing summary of the customer's problem (plain, factual — for the agent's eyes only)
-2. A one-sentence customer-specific situation: the personal backstory behind THIS call. Make it specific to the customer's name and vary it from the template context. E.g. "Emma ordered a ceramic mug set as a birthday gift for her mother, but received a coffee grinder instead." NOT the generic template text.
+2. A one-sentence customer-specific situation: the personal backstory behind THIS call. Make it specific to the customer's name. Vary the reason widely — everyday purchases, work needs, personal use, home appliances, subscriptions, travel, etc. Do NOT use birthday gifts, anniversary gifts, or holiday gifts as the reason. NOT the generic template text.
 3. A realistic company name the agent is working for (e.g. "NovaTech Solutions", "Apex Retail", "BlueWave Telecom" — fitting the scenario type, never a real company)
 4. Pick the 3 most important policy facts and rewrite them as short plain-English rules. Write them generically — do NOT mention the company name, product names, or any branding. Use neutral phrasing like "Agents may offer...", "The return window is...", "Exceptions require supervisor approval." Keep them short: one sentence each, no markdown, no bold, no asterisks.
 5. 3–5 specific fake-but-realistic details the customer would reference. Pick only labels relevant to this scenario type — do NOT invent a product if the scenario is about billing, subscriptions, or account access. For retail/shipping scenarios, invent a product consistent with the scenario description (not always electronics or a TV). Use variety.
