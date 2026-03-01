@@ -17,9 +17,9 @@ app.route('/api/session', session)
 const PORT = Number(process.env.PORT ?? 3001)
 
 // serve() returns the http.Server in @hono/node-server >= 1.13
-const server = serve({ fetch: app.fetch, port: PORT }, (info) => {
+const server = serve({ fetch: app.fetch, port: PORT }, async (info) => {
   console.log(`Cadence backend running on port ${info.port}`)
-  resolveVoiceMeta()
+  await resolveVoiceMeta()
 })
 
 // Attach WebSocket server to same http.Server

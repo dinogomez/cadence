@@ -57,14 +57,14 @@ export async function generateCustomerName(persona: Persona): Promise<string> {
       role: 'user',
       content: `Generate a realistic full name for a customer. Random seed: ${seed}
 ${persona.voiceAccent
-  ? `The voice speaking this customer has a ${persona.voiceAccent} accent. Generate a name that is culturally authentic to that accent/region.`
+  ? `The customer's voice has a ${persona.voiceAccent} accent. The name MUST be culturally authentic to ${persona.voiceAccent} culture/region. DO NOT generate an Anglo-Saxon, English, or American name.`
   : `Name locale/origin: ${persona.nameLocale}`}
 Voice gender: ${persona.voiceGender} — the name MUST be a ${persona.voiceGender} name, no exceptions.
 
 Rules:
-- The name must feel authentic to the locale above.
+- The name must feel completely authentic to the locale/accent above — not Anglo-Saxon unless the accent is American, British, or Australian.
 - Vary widely — do not default to common or overused names.
-- Do NOT use: Ananya, Emma, James, John, Michael, Sarah, or any other name you have used recently.
+- Do NOT use: Ethan, Cole, Whitmore, Ananya, Emma, James, John, Michael, Sarah, or any name that does not match the accent/locale.
 - Return ONLY the full name, nothing else. No quotes, no labels, no punctuation after.`
     }],
     maxTokens: 20,
