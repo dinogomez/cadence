@@ -133,7 +133,7 @@ export function handleCallConnection(ws: WebSocket) {
       }
 
       // Step 3: TTS for customer response
-      const resolvedVoiceId = pickVoiceId(basePersona)
+      const resolvedVoiceId = pickVoiceId(persona)
       const audioB64Out = await synthesize(customerResult.text, resolvedVoiceId, customerResult.newEscalation)
       send(ws, {
         type: 'customer_response',
