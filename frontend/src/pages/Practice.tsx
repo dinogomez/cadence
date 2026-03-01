@@ -327,7 +327,7 @@ const dotMatrixFrames = (() => {
   )
 })()
 
-function DotMatrix() {
+function DotMatrix({ onColor = '#6b7280', offColor = '#d1d5db' }: { onColor?: string; offColor?: string }) {
   return (
     <Matrix
       rows={3}
@@ -336,7 +336,7 @@ function DotMatrix() {
       fps={8}
       size={4}
       gap={2}
-      palette={{ on: '#6b7280', off: '#e5e7eb' }}
+      palette={{ on: onColor, off: offColor }}
       ariaLabel="Loading"
     />
   )
@@ -647,9 +647,9 @@ function Step3Content({ selectedPersona, selectedScenario, tab, customTitle, cus
         <button
           disabled={loading || previewLoading}
           onClick={handleStart}
-          className="w-48 bg-blue-600 text-white text-sm font-medium px-5 py-2.5 rounded-md hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="w-48 bg-blue-600 text-white text-sm font-medium px-5 py-2.5 rounded-md hover:bg-blue-700 disabled:cursor-not-allowed transition-colors"
         >
-          {loading || previewLoading ? <span className="flex items-center justify-center"><DotMatrix /></span> : 'Start Call →'}
+          {loading || previewLoading ? <span className="flex items-center justify-center"><DotMatrix onColor="#ffffff" offColor="rgba(255,255,255,0.3)" /></span> : 'Start Call →'}
         </button>
       </div>
     </div>
