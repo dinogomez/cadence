@@ -315,7 +315,8 @@ function Skeleton({ className }: { className?: string }) {
   return <div className={clsx('bg-gray-100 rounded animate-pulse', className)} />
 }
 
-const dotMatrixFrames = (() => {
+// Header: clockwise sweep around the grid perimeter
+const sweepFrames = (() => {
   const order = [0,1,2,5,8,7,6,3,4]
   return order.map((_, fi) =>
     Array.from({ length: 3 }, (__, r) =>
@@ -327,16 +328,36 @@ const dotMatrixFrames = (() => {
   )
 })()
 
-function DotMatrix({ onColor = '#6b7280', offColor = '#d1d5db' }: { onColor?: string; offColor?: string }) {
+// Button: alternating checkerboard blink — visually distinct from sweep
+const checkerFrames: import('@/components/ui/matrix').Frame[] = [
+  [[1,0,1],[0,1,0],[1,0,1]],
+  [[0,1,0],[1,0,1],[0,1,0]],
+]
+
+function DotMatrix({ variant = 'header' }: { variant?: 'header' | 'button' }) {
+  if (variant === 'button') {
+    return (
+      <Matrix
+        rows={3}
+        cols={3}
+        frames={checkerFrames}
+        fps={4}
+        size={4}
+        gap={2}
+        palette={{ on: '#ffffff', off: 'rgba(255,255,255,0.25)' }}
+        ariaLabel="Loading"
+      />
+    )
+  }
   return (
     <Matrix
       rows={3}
       cols={3}
-      frames={dotMatrixFrames}
+      frames={sweepFrames}
       fps={8}
       size={4}
       gap={2}
-      palette={{ on: onColor, off: offColor }}
+      palette={{ on: '#6b7280', off: '#d1d5db' }}
       ariaLabel="Loading"
     />
   )
@@ -653,7 +674,7 @@ function Step3Content({ selectedPersona, selectedScenario, tab, customTitle, cus
               : 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
           )}
         >
-          {loading || previewLoading ? <span className="flex items-center justify-center"><DotMatrix onColor="#ffffff" offColor="rgba(255,255,255,0.4)" /></span> : 'Start Call →'}
+          {loading || previewLoading ? <span className="flex items-center justify-center"><DotMatrix variant="button" /></span> : 'Start Call →'}
         </button>
       </div>
     </div>
