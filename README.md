@@ -1,6 +1,6 @@
 # Cadence
 
-**AI-powered call center training simulator for BPO agents.**
+**AI-powered customer support training simulator for BPO agents.**
 
 Practice handling difficult customer calls with AI personas that react authentically to everything you say — escalating when you deflect, calming down when you empathize, and ending the call when the issue is resolved or they've had enough.
 

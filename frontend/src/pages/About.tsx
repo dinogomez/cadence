@@ -88,7 +88,7 @@ export default function About() {
             I knew a lot of people who went into BPO. Not because it was their dream, but because it paid well and it supported their families. Night shifts, accents, and varied customers. Training that was mostly classroom slides and role-plays with a supervisor watching over their shoulder. There was no safe space to make mistakes.
           </p>
           <p>
-            Cadence is that safe space. An AI customer who actually escalates when you deflect. A coaching layer that tells you what you missed in real time. A scorecard that measures what a call center manager actually cares about: not just whether you were polite, but whether you resolved the issue, stayed compliant, and kept a situation from blowing up.
+            Cadence is that safe space. An AI customer who actually escalates when you deflect. A coaching layer that tells you what you missed in real time. A scorecard that measures what a customer support manager actually cares about: not just whether you were polite, but whether you resolved the issue, stayed compliant, and kept a situation from blowing up.
           </p>
           <p>
             I built this for the Mistral Hackathon 2026, powered by Voxtral for speech-to-text and ElevenLabs for voice. The reason is simple: the BPO industry deserves better training tools, and I had a weekend to build one.
