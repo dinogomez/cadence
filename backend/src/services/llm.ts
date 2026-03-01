@@ -154,7 +154,7 @@ export async function generateCustomerResponse(params: {
     .join('\n')
 
   const callDetailsBlock = callDetails
-    ? `\nYour specific situation:\n${callDetails.summary}\nKey details you know and may reference:\n${callDetails.details.map(d => `- ${d.label}: ${d.value}`).join('\n')}`
+    ? `\nYour specific situation:\n${callDetails.summary}\nBackground details you know (reference only what's naturally relevant — a real person wouldn't recite all of these):\n${callDetails.details.map(d => `- ${d.label}: ${d.value}`).join('\n')}`
     : ''
 
   const systemPrompt = `You are ${personaDisplayName}, age ${persona.age}. ${persona.type}.
@@ -185,7 +185,7 @@ Rules:
 
   const isAgentFirstOpening = callMode === 'agent-first' && history.length === 0
   const issueStatement = callDetails
-    ? `${callDetails.summary} Reference your order number (${callDetails.details.find(d => d.label.toLowerCase().includes('order'))?.value ?? ''}) or other specific details naturally.`
+    ? `${callDetails.summary} Mention one or two of your specific details naturally if relevant (${callDetails.details.map(d => `${d.label}: ${d.value}`).join(', ')}) — only reference what actually makes sense for your situation. Don't recite all of them.`
     : 'state your issue in 1–2 sentences'
   const userMsg = historyText
     ? `Conversation so far:\n${historyText}\n\n${agentLabel} just said: "${agentText}"\n\nRespond as ${personaDisplayName}:`
