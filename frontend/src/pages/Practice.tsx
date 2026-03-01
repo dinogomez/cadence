@@ -9,6 +9,7 @@ import { useStore } from '@/lib/store'
 import { PERSONAS, SCENARIOS } from '@/lib/data'
 import PersonaCard from '@/components/PersonaCard'
 import ScenarioCard from '@/components/ScenarioCard'
+import { Matrix } from '@/components/ui/matrix'
 
 type Tab = 'prebuilt' | 'custom'
 
@@ -314,17 +315,30 @@ function Skeleton({ className }: { className?: string }) {
   return <div className={clsx('bg-gray-100 rounded animate-pulse', className)} />
 }
 
+const dotMatrixFrames = (() => {
+  const order = [0,1,2,5,8,7,6,3,4]
+  return order.map((_, fi) =>
+    Array.from({ length: 3 }, (__, r) =>
+      Array.from({ length: 3 }, (___, c) => {
+        const idx = r * 3 + c
+        return order.indexOf(idx) <= fi % order.length ? 1 : 0
+      })
+    )
+  )
+})()
+
 function DotMatrix() {
   return (
-    <span className="grid grid-cols-3 gap-0.5 w-fit">
-      {Array.from({ length: 9 }).map((_, i) => (
-        <span
-          key={i}
-          className="w-1 h-1 rounded-full bg-gray-400"
-          style={{ animationDelay: `${i * 80}ms`, animation: 'dotPulse 1.2s ease-in-out infinite' }}
-        />
-      ))}
-    </span>
+    <Matrix
+      rows={3}
+      cols={3}
+      frames={dotMatrixFrames}
+      fps={8}
+      size={4}
+      gap={2}
+      palette={{ on: '#6b7280', off: '#e5e7eb' }}
+      ariaLabel="Loading"
+    />
   )
 }
 
